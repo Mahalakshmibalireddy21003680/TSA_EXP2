@@ -3,98 +3,133 @@ Date:
 ### AIM:
 To Implement Linear and Polynomial Trend Estiamtion Using Python.
 ### ALGORITHM:
-1.Import necessary libraries (NumPy, Matplotlib)
 
-2.Load the dataset
+**Step 1:** Import necessary libraries (NumPy, Matplotlib)
 
-3.Calculate the linear trend values using least square method
+**Step 2:** Load the dataset
 
-4.Calculate the polynomial trend values using least square method
+**Step 3:** Calculate the linear trend values using lLinearRegression Function.
 
-5.End the program
+**Step 4:** Calculate the polynomial trend values using PolynomialFeatures Function.
+
+**Step 5:** End the program
+
+
 ### PROGRAM:
 ```
-Developed By: Balireddy Mahalakshmi
-Reg.No:212221240008
+Developed By : Balireddy Mahalakshmi
+Reg No.: 212221240008
 ```
-### A - LINEAR TREND ESTIMATION
-```
+
+## A - LINEAR TREND ESTIMATION
+```python
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from tabulate import tabulate
-x = [2010, 2012, 2014, 2016, 2018]
-y = [18, 21, 23,27,16]
-X = [i - x[len(x)//2] for i in x] 
+%matplotlib inline
+train = pd.read_csv('AirPassengers.csv')
+
+train['Month'] = pd.to_datetime(train['Month'], format='%Y-%m')
+train['Year'] = train['Month'].dt.year
+train.head()
+
+year = train['Year'].values.reshape(-1, 1)
+values = train['#Passengers'].values
+
+x=year
+y=values
+
+X = [i - x[len(x)//2] for i in x]
 x2 = [i ** 2 for i in X]
 xy = [i * j for i, j in zip(X, y)]
-
 table = [[i, j, k, l, m] for i, j, k, l, m in zip(x, y, X, x2, xy)]
-
 print(tabulate(table, headers=["Year", "Prod", "X=x-2014", "X^2", "xy"], tablefmt="grid"))
 
+from sklearn.linear_model import LinearRegression
+lin = LinearRegression()
+lin.fit(X, y)
 n=len(x)
 b=(n*sum(xy)-sum(y)*sum(X))/(n*sum(x2)-(sum(X)**2))
 a=(sum(y)-b*sum(X))/n
 print("a=%.1f,b=%.1f"%(a,b))
+
 l=[]
 for i in range(n):
-  l.append(a+b*X[i])
-print(l)
+  l.append(a+b*X[i]);
 print("Trend Equation : y=%d+%.2fx"%(a,b))
 import matplotlib.pyplot as plt
 plt.title("Linear Trend Graph")
 plt.xlabel("Year")
-plt.ylabel("Production")
-plt.plot(x,l)
-```
+plt.ylabel("Passengers")
+plt.plot(x,l,color='red')
+plt.show()
 
-### B- POLYNOMIAL TREND ESTIMATION
+pred = 110.0
+predarray = np.array([[pred]])
+lin.predict(predarray)
 ```
+## B- POLYNOMIAL TREND ESTIMATION
+```python
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+import pandas as pd
 from tabulate import tabulate
-x = [2011,2012,2013,2014,2015,2016]
-y = [100,107,128,140,181,192]
+%matplotlib inline
+
+train = pd.read_csv('AirPassengers.csv')
+train['Month'] = pd.to_datetime(train['Month'], format='%Y-%m')
+train['Year'] = train['Month'].dt.year
+train.head()
+
+year = train['Year'].values.reshape(-1, 1)
+values = train['#Passengers'].values
+x=year
+y=values
 X = [2*(i-(sum(x)/len(x))) for i in x]
 x2 = [i ** 2 for i in X]
 xy = [i * j for i, j in zip(X, y)]
 x3 = [i ** 3 for i in X]
 x4 = [i ** 4 for i in X]
-x2y=[i*j for i,j in zip(x2,y)]
-
+x2y = [i * j for i, j in zip(x2, y)]
 table = [[i, j, k, l, m,n,o,p] for i, j, k, l, m,n,o,p in zip(x, y, X, x2, x3,x4,xy,x2y)]
+print(tabulate(table, headers=["Year", "Prod", "X=x-2013", "X^2", "X^3", "X^4", "xy", "x2y"], tablefmt="grid"))
 
-print(tabulate(table, headers=["Year", "Prod", "X=x-2013", "X^2", "X^3","X^4","xy","x2y"], tablefmt="grid"))
-coeff=[[len(X),sum(X)],[sum(X),sum(x2)]]
+from sklearn.linear_model import LinearRegression
+lin = LinearRegression()
+lin.fit(X, y)
+from sklearn.preprocessing import PolynomialFeatures
+poly = PolynomialFeatures(degree=4)
+X_poly = poly.fit_transform(X)
+poly.fit(X_poly, y)
+lin2 = LinearRegression()
+lin2.fit(X_poly, y)
+plt.plot(X, lin2.predict(poly.fit_transform(X)),
+color='red')
+plt.title('Polynomial Regression')
+plt.xlabel('Month')
+plt.ylabel('Passengers')
+plt.show()
 
-coeff=[[len(x),sum(X),sum(x2)],[sum(X),sum(x2),sum(x3)],[sum(x2),sum(x3),sum(x4)]]
-Y=[sum(y),sum(xy),sum(x2y)]
-A=np.array(coeff)
-B=np.array(Y)
-try:
-  solution=np.linalg.solve(A,B)
-except:
-  print("error")
-a,b,c=solution
-print("a=%.2f, b=%.2f, c=%.2f"%(a,b,c))
-print("Polynomial trend equation y=%.2f+%0.2fx+%.2fx^2"%(a,b,c))
-l=[]
-for i in range(len(X)):
-  l.append(a+b*X[i]+c*x2[i])
-import matplotlib.pyplot as plt
-plt.plot(x,l)
+pred2 = 110.0
+pred2array = np.array([[pred2]])
+lin2.predict(poly.fit_transform(pred2array))
 ```
-
 ### OUTPUT
-A - LINEAR TREND ESTIMATION
 
-![1](https://github.com/nithin-popuri7/TSA_EXP2/assets/94154780/539bec82-907d-49c8-b0fa-c07d5801f7cd)
+#### Before Performing Trend Operations :
 
-![2](https://github.com/nithin-popuri7/TSA_EXP2/assets/94154780/f4b23a61-2002-4b8c-8c4d-0ac328277efb)
+![image](https://github.com/Pavan-Gv/TSA_EXP2/assets/94827772/26ece9ff-ab5a-429b-87c4-f0f4fc1ed9b9)
 
-B- POLYNOMIAL TREND ESTIMATION
+### A - LINEAR TREND ESTIMATION
 
-![3](https://github.com/nithin-popuri7/TSA_EXP2/assets/94154780/e99860d3-b73e-4170-8357-b4625a891333)
+![image](https://github.com/Pavan-Gv/TSA_EXP2/assets/94827772/7c9e3f9f-f5e3-4d7e-947c-959aeb751d0f)
 
-![4](https://github.com/nithin-popuri7/TSA_EXP2/assets/94154780/df5e1c97-5072-42f7-90af-cb6569373f69)
+### B- POLYNOMIAL TREND ESTIMATION
+
+![image](https://github.com/Pavan-Gv/TSA_EXP2/assets/94827772/a3515a66-4803-40b3-ae50-a3e8c69f0535)
 
 
 ### RESULT:
